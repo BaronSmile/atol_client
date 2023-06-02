@@ -1,0 +1,11 @@
+.process{
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+.process label{
+    color: #a9a9a9 !important;
+}
