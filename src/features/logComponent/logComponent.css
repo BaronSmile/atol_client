@@ -8,4 +8,11 @@
     padding: 10px;
     border: 1px solid #eee;
     border-radius: 6px;
+    list-style: none;
+}
+
+.log-item_block li{
+    font-size: 14px;
+    color: #b5b5b5;
+    font-style: italic;
 }
