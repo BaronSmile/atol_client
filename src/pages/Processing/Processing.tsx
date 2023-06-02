@@ -84,9 +84,7 @@ const Processing = () => {
 
   useEffect(() => {
     const intervalID = setInterval(fetchData, 1000);
-    if (fileStatus.progress > '75') {
-      return () => clearInterval(intervalID);
-    }
+    return () => clearInterval(intervalID);
   }, [taskId]);
 
   return (
