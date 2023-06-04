@@ -58,34 +58,41 @@ const Processing = () => {
         console.error('POST_ERR:', err);
       });
   };
-  const fetchData = () => {
-    if (taskId) {
-      fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
-        .then((resp) => {
-          console.log('RESP:', resp);
-          return resp.json();
-        })
-        .then((res) => {
-          res = {
-            task_id: 123,
-            status: 'processing',
-            progress: (Math.random() * 100).toFixed(2),
-            log: res.log,
-            file_url: 'http://localhost:8081/api/v1/reports/upload',
-          };
-          console.log('GET_SUCCESS', res);
-          setFileStatus(res);
-        })
-        .catch((err) => {
-          console.log('GET_ERR:', err);
-        });
-    }
-  };
 
   useEffect(() => {
-    const intervalID = setInterval(fetchData, 1000);
+    let intervalID: any;
+
+    const fetchData = () => {
+      if (taskId) {
+        fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
+          .then((resp) => {
+            console.log('RESP:', resp);
+            return resp.json();
+          })
+          .then((res) => {
+            res = {
+              task_id: Math.random() < 0.8 ? 123 : 312,
+              status: Math.random() < 0.8 ? 'processing' : 'success',
+              progress: (Math.random() * 100).toFixed(2),
+              log: res.log,
+              file_url: 'http://localhost:8081/api/v1/reports/upload',
+            };
+            console.log('GET_SUCCESS', res);
+            setFileStatus(res);
+          })
+          .catch((err) => {
+            console.log('GET_ERR:', err);
+          });
+      }
+    };
+
+    if (fileStatus.status === 'processing') {
+      intervalID = setInterval(fetchData, 1000);
+    }
     return () => clearInterval(intervalID);
   }, [taskId]);
+
+  console.log(fileStatus.status);
 
   return (
     <Form className={'process'} layout="vertical">
