@@ -51,7 +51,6 @@ const Processing = () => {
     })
       .then((resp) => resp.json())
       .then((res) => {
-        console.log('POST_SUCCESS:', res);
         setTaskId(res.task_id);
       })
       .catch((err) => {
@@ -60,15 +59,10 @@ const Processing = () => {
   };
 
   useEffect(() => {
-    let intervalID: any;
-
-    const fetchData = () => {
-      if (taskId) {
+    if (taskId) {
+      const intervalID = setInterval(() => {
         fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
-          .then((resp) => {
-            console.log('RESP:', resp);
-            return resp.json();
-          })
+          .then((resp) => resp.json())
           .then((res) => {
             res = {
               task_id: Math.random() < 0.8 ? 123 : 312,
@@ -79,21 +73,24 @@ const Processing = () => {
             };
             console.log('GET_SUCCESS', res);
             setFileStatus(res);
+
+            if (res.status !== 'processing') {
+              console.log('JOKER STOP:');
+              clearInterval(intervalID);
+            }
           })
           .catch((err) => {
             console.log('GET_ERR:', err);
           });
-      }
-    };
+      }, 1000);
 
-    if (fileStatus.status === 'processing') {
-      intervalID = setInterval(fetchData, 1000);
+      return () => {
+        clearInterval(intervalID);
+      };
     }
-    return () => clearInterval(intervalID);
   }, [taskId]);
 
-  console.log(fileStatus.status);
-
+  console.log('FILE_STATUS:', fileStatus.status);
   return (
     <Form className={'process'} layout="vertical">
       <UploadComponent
@@ -104,16 +101,12 @@ const Processing = () => {
         fileName={fileName}
       />
       <FormButton text={'Запустить проверку'} position={'center'} handleSubmit={handleSubmission} />
-
       <Progress percent={fileStatus ? +fileStatus?.progress : 0} />
       <LogComponent log={fileStatus.log} />
-
       {/*<FormButton handleSubmit={fileStatus.file_url} text={'Сохранить'} position={'right'} />*/}
-      <Anchor>
-        <Link disabled={!fileStatus.file_url} href={fileStatus.file_url ?? ''}>
-          Сохранить
-        </Link>
-      </Anchor>
+      <Link disabled={!fileStatus.file_url} href={fileStatus.file_url ?? ''}>
+        Сохранить
+      </Link>
     </Form>
   );
 };
