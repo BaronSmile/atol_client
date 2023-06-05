@@ -60,37 +60,30 @@ const Processing = () => {
 
   useEffect(() => {
     if (taskId) {
-      const intervalID = setInterval(() => {
+      const getInterval = setInterval(() => {
         fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
-            res = {
-              task_id: Math.random() < 0.8 ? 123 : 312,
-              status: Math.random() < 0.8 ? 'processing' : 'success',
-              progress: (Math.random() * 100).toFixed(2),
-              log: res.log,
-              file_url: 'http://localhost:8081/api/v1/reports/upload',
-            };
-            console.log('GET_SUCCESS', res);
+            // res = {
+            //   task_id: Math.random() < 0.8 ? 123 : 312,
+            //   status: Math.random() < 0.9 ? 'processing' : 'success',
+            //   progress: (Math.random() * 100).toFixed(2),
+            //   log: res.log,
+            //   file_url: 'http://localhost:8081/api/v1/reports/upload',
+            // };
             setFileStatus(res);
 
             if (res.status !== 'processing') {
-              console.log('JOKER STOP:');
-              clearInterval(intervalID);
+              clearInterval(getInterval);
             }
           })
           .catch((err) => {
             console.log('GET_ERR:', err);
           });
       }, 1000);
-
-      return () => {
-        clearInterval(intervalID);
-      };
     }
   }, [taskId]);
 
-  console.log('FILE_STATUS:', fileStatus.status);
   return (
     <Form className={'process'} layout="vertical">
       <UploadComponent
@@ -103,8 +96,7 @@ const Processing = () => {
       <FormButton text={'Запустить проверку'} position={'center'} handleSubmit={handleSubmission} />
       <Progress percent={fileStatus ? +fileStatus?.progress : 0} />
       <LogComponent log={fileStatus.log} />
-      {/*<FormButton handleSubmit={fileStatus.file_url} text={'Сохранить'} position={'right'} />*/}
-      <Link disabled={!fileStatus.file_url} href={fileStatus.file_url ?? ''}>
+      <Link disabled={!fileStatus.file_url} target="_blank" href={fileStatus.file_url ?? ''}>
         Сохранить
       </Link>
     </Form>
