@@ -21,10 +21,11 @@ const Processing = () => {
   });
 
   const inputRef = useRef<any>();
+  let PGRS = localStorage.PGRS;
 
-  const changeHandler = (file:any) => {
+  const changeHandler = (file: any) => {
     // const file = inputRef.current.files[0];
-
+    console.log('Change:', file.name);
     if (!file.name) {
       setSelectedFile(null);
       setIsFilePicked(false);
@@ -32,7 +33,8 @@ const Processing = () => {
       return;
     }
 
-    if (/\.xlsx?$/.test(inputRef.current.files[0].name) === false) {
+    // if (/\.xlsx?$/.test(inputRef.current.files[0].name) === false) {
+    if (/\.xlsx?$/.test(file.name) === false) {
       setSelectedFile(null);
       setIsFilePicked(false);
       setFileName('Поддерживается только загрузка xlsx-файлов');
@@ -51,6 +53,7 @@ const Processing = () => {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
+    console.log('FORM_DATA', formData);
 
     fetch('http://localhost:8081/api/v1/reports/upload', {
       method: 'POST',
@@ -73,32 +76,34 @@ const Processing = () => {
         fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
-            // PGRS = PGRS || 0;
-            // PGRS += (Math.random() * 10);
-            // PGRS = Number(Math.min(PGRS, 100));
+            PGRS = PGRS || 0;
+            PGRS += Math.random() * 10;
+            PGRS = Number(Math.min(PGRS, 100));
 
-            // res = {
-            //   task_id: taskId,
-            //   status: PGRS < 100 ? 'processing' : 'success',
-            //   progress: PGRS.toFixed(2),
-            //   log: res.log,
-            //   file_url: PGRS >= 100 ? 'http://localhost:8081/api/v1/reports/upload' : null,
-            // };
+            res = {
+              task_id: taskId,
+              status: PGRS < 100 ? 'processing' : 'success',
+              progress: PGRS.toFixed(2),
+              log: res.log,
+              file_url: PGRS >= 100 ? 'http://localhost:8081/api/v1/reports/upload' : null,
+            };
 
             setFileStatus(res);
 
             //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
-            if (res.status == 'success' || res.status == 'error') {
+            if (res.status === 'done' || res.status === 'error') {
               console.log('Clearing interval', res);
               clearInterval(getInterval);
             }
           })
           .catch((err) => {
-            console.log('GET_ERR:', err);
+            console.error('GET_ERR:', err);
           });
       }, 1000);
     }
   }, [taskId]);
+
+  console.log('RENDER:', fileStatus.progress);
 
   return (
     <Form className={'process'} layout="vertical">
