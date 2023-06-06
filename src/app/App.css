@@ -1,3 +1,5 @@
-.app{
+.app {
     font-family: sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
 }

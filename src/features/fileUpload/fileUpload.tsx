@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Upload } from 'antd';
 import './fileUpload.css';
 
 interface FileUploadProps {
@@ -19,7 +19,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 }) => {
   return (
     <div className="file-input-container">
-      <label htmlFor="file-input">Выберите файл:</label>
+      {/* <label htmlFor="file-input">Выберите файл:</label>
       <Button className="file-name">Загрузить</Button>
       <input type="file" name="file" onChange={changeHandler} ref={inputRef} />
 
@@ -29,7 +29,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
         </div>
       ) : (
         <p style={{ width: '100%' }}>{fileName}</p>
-      )}
+      )} */}
+      
+      <Upload listType='text'  accept='.xlsx,.xls' beforeUpload={(file)=>{
+        console.log(file)
+        return changeHandler(file)
+      }} itemRender={(exisingComp,file)=>{
+        return <p className='upload_file'>{file.name}</p>
+      }}>
+         <label className="file-input">Обрабатываемый документ:</label>
+        <Button className='uploadBtn'>Загрузить</Button>
+      </Upload>
     </div>
   );
 };

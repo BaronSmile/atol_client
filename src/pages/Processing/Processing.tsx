@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Anchor, Form, Progress } from 'antd';
 
 import './Processing.css';
-import UploadComponent from '../../features/fileUpload/fileUpload';
+import FileUpload from '../../features/fileUpload/fileUpload';
 import FormButton from '../../features/formButton/formButton';
 import LogComponent from '../../features/logComponent/logComponent';
 import Link from 'antd/es/typography/Link';
@@ -19,11 +19,13 @@ const Processing = () => {
     status: '',
     task_id: 123,
   });
-  const inputRef = useRef<any>();
-  const changeHandler = () => {
-    const file = inputRef.current.files[0];
 
-    if (!inputRef.current?.files?.[0]?.name) {
+  const inputRef = useRef<any>();
+
+  const changeHandler = (file:any) => {
+    // const file = inputRef.current.files[0];
+
+    if (!file.name) {
       setSelectedFile(null);
       setIsFilePicked(false);
       setFileName('Файл не выбран');
@@ -43,7 +45,7 @@ const Processing = () => {
   };
 
   const handleSubmission = () => {
-    if(!selectedFile) {
+    if (!selectedFile) {
       return;
     }
 
@@ -71,11 +73,10 @@ const Processing = () => {
         fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
-
             // PGRS = PGRS || 0;
             // PGRS += (Math.random() * 10);
             // PGRS = Number(Math.min(PGRS, 100));
-            
+
             // res = {
             //   task_id: taskId,
             //   status: PGRS < 100 ? 'processing' : 'success',
@@ -101,14 +102,19 @@ const Processing = () => {
 
   return (
     <Form className={'process'} layout="vertical">
-      <UploadComponent
+      <FileUpload
         inputRef={inputRef}
         changeHandler={changeHandler}
         isFilePicked={isFilePicked}
         selectedFile={selectedFile}
         fileName={fileName}
       />
-      <FormButton text={'Запустить проверку'} disabled={!isFilePicked} position={'center'} handleSubmit={handleSubmission} />
+      <FormButton
+        text={'Запустить проверку'}
+        disabled={!isFilePicked}
+        position={'center'}
+        handleSubmit={handleSubmission}
+      />
       <Progress percent={fileStatus ? +fileStatus?.progress : 0} />
       <LogComponent log={fileStatus.log} />
       <Link disabled={!fileStatus.file_url} target="_blank" href={fileStatus.file_url ?? ''}>

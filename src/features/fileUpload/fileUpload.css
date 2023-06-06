@@ -1,3 +1,12 @@
+.file-input {
+    padding-right: 10px;
+}
+
+.uploadBtn {
+    display: block;
+    margin: 10px auto 
+}
+
 .file-input-container {
     position: relative;
     display: flex;
@@ -26,7 +35,7 @@
     background-color: #eeeeee;
 }
 
-.upload_file{
+.upload_file {
     padding: 10px 15px;
     margin-top: 10px;
     border: 1px solid #eee;
