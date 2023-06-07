@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Upload } from 'antd';
 import './fileUpload.css';
+import { CheckOutlined } from '@ant-design/icons';
 
 interface FileUploadProps {
   inputRef?: any;
@@ -8,6 +9,7 @@ interface FileUploadProps {
   isFilePicked?: any;
   selectedFile?: any;
   fileName?: string;
+  acceptedFile: boolean;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -16,6 +18,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   isFilePicked,
   selectedFile,
   fileName,
+  acceptedFile,
 }) => {
   return (
     <div className="file-input-container">
@@ -39,7 +42,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
           return changeHandler(file);
         }}
         itemRender={(exisingComp, file) => {
-          return <p className={'upload_file'}>{file.name}</p>;
+          return (
+            <div className={'upload_file'}>
+              {acceptedFile ? (
+                <CheckOutlined style={{ paddingRight: '10px', color: 'green' }} />
+              ) : null}
+              <p>{file.name}</p>
+            </div>
+          );
         }}
       >
         <label className="file-input">Обрабатываемый документ:</label>

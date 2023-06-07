@@ -12,6 +12,7 @@ const Processing = () => {
   const [isFilePicked, setIsFilePicked] = useState(false);
   const [fileName, setFileName] = useState('');
   const [taskId, setTaskId] = useState<undefined | number>();
+  const [acceptedFile, setAcceptedFile] = useState(false);
   const [fileStatus, setFileStatus] = useState({
     file_url: null,
     log: ['Текст лога'],
@@ -21,7 +22,7 @@ const Processing = () => {
   });
 
   const inputRef = useRef<any>();
-  let PGRS = localStorage.PGRS;
+  // let PGRS = localStorage.PGRS;
 
   const changeHandler = (file: any) => {
     // const file = inputRef.current.files[0];
@@ -53,7 +54,6 @@ const Processing = () => {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
-    console.log('FORM_DATA', formData);
 
     fetch('http://localhost:8081/api/v1/reports/upload', {
       method: 'POST',
@@ -70,28 +70,29 @@ const Processing = () => {
 
   useEffect(() => {
     if (taskId) {
+      setAcceptedFile(true);
       const getInterval = setInterval(() => {
         console.log('INT');
 
         fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
-            PGRS = PGRS || 0;
-            PGRS += Math.random() * 10;
-            PGRS = Number(Math.min(PGRS, 100));
-
-            res = {
-              task_id: taskId,
-              status: PGRS < 100 ? 'processing' : 'success',
-              progress: PGRS.toFixed(2),
-              log: res.log,
-              file_url: PGRS >= 100 ? 'http://localhost:8081/api/v1/reports/upload' : null,
-            };
+            // PGRS = PGRS || 0;
+            // PGRS += Math.random() * 10;
+            // PGRS = Number(Math.min(PGRS, 100));
+            // console.log('FETCH:', res.status);
+            // res = {
+            //   task_id: taskId,
+            //   status: PGRS < 100 ? 'processing' : 'done',
+            //   progress: PGRS.toFixed(2),
+            //   log: res.log,
+            //   file_url: PGRS >= 100 ? 'http://localhost:8081/api/v1/reports/upload' : null,
+            // };
 
             setFileStatus(res);
 
-            //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
             if (res.status === 'done' || res.status === 'error') {
+              //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
               console.log('Clearing interval', res);
               clearInterval(getInterval);
             }
@@ -103,7 +104,7 @@ const Processing = () => {
     }
   }, [taskId]);
 
-  console.log('RENDER:', fileStatus.progress);
+  // console.log('RENDER:', fileStatus.progress);
 
   return (
     <Form className={'process'} layout="vertical">
@@ -113,6 +114,7 @@ const Processing = () => {
         isFilePicked={isFilePicked}
         selectedFile={selectedFile}
         fileName={fileName}
+        acceptedFile={acceptedFile}
       />
       <FormButton
         text={'Запустить проверку'}
