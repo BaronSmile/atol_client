@@ -8,7 +8,12 @@ interface FormBtnProps {
   disabled: boolean;
   handleSubmit?: any;
 }
-const FormButton: React.FC<FormBtnProps> = ({ text, position = 'center', disabled = false, handleSubmit }) => {
+const FormButton: React.FC<FormBtnProps> = ({
+  text,
+  position = 'center',
+  disabled = false,
+  handleSubmit,
+}) => {
   return (
     <Form.Item className={`form-btn btn_${position}`}>
       <Button type={'primary'} disabled={disabled} className={'btn'} onClick={handleSubmit}>

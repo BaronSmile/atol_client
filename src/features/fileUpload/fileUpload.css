@@ -40,7 +40,11 @@
     margin-top: 10px;
     border: 1px solid #eee;
     border-radius: 6px;
-    width: 100%;
+    align-items: center;
+}
+
+.upload_form_item{
     display: flex;
+    flex-direction: column;
     align-items: center;
 }

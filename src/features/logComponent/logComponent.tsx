@@ -8,7 +8,7 @@ interface LogProps {
 
 const LogComponent: React.FC<LogProps> = ({ log }) => {
   return (
-    <Form.Item className="log-item" label="Лог работы">
+    <Form.Item className="log-item" label="Сообщения о работе">
       <ul className="log-item_block">
         {log.map((item, idx) => (
           <li key={idx}>{item}</li>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Anchor, Form, Progress } from 'antd';
+import { Form, Progress } from 'antd';
 
 import './Processing.css';
 import FileUpload from '../../features/fileUpload/fileUpload';
@@ -15,23 +15,42 @@ const Processing = () => {
   const [acceptedFile, setAcceptedFile] = useState(false);
   const [fileStatus, setFileStatus] = useState({
     file_url: null,
-    log: ['Текст лога'],
+    log: [''],
     progress: '0',
     status: '',
     task_id: 123,
   });
+  const [previousSelectedFileUid, setPreviousSelectedFileUid] = useState<string | undefined>(
+    undefined,
+  );
 
   const inputRef = useRef<any>();
   // let PGRS = localStorage.PGRS;
+  // let allLogs: string[] = [];
+  const baseURL: string = 'http://localhost:8081/api/v1/reports'; //'http://10.177.118.18:8081/api/v1/reports'; // 'http://localhost:8081/api/v1/reports'
 
   const changeHandler = (file: any) => {
     // const file = inputRef.current.files[0];
-    console.log('Change:', file.name);
+    // console.log('FILE_INFO:', file);
+    // console.log('FILE_STATUS:', fileStatus);
     if (!file.name) {
       setSelectedFile(null);
       setIsFilePicked(false);
       setFileName('Файл не выбран');
       return;
+    }
+
+    if (fileStatus.status === 'done' && file.uid !== previousSelectedFileUid) {
+      setAcceptedFile(false);
+      setTaskId(undefined);
+      console.log('HOPE:');
+      setFileStatus({
+        file_url: null,
+        log: [''],
+        progress: '0',
+        status: '',
+        task_id: 123,
+      });
     }
 
     // if (/\.xlsx?$/.test(inputRef.current.files[0].name) === false) {
@@ -48,14 +67,18 @@ const Processing = () => {
   };
 
   const handleSubmission = () => {
+    // console.log('HANDLE:', selectedFile);
+    // console.log('HANDLE2:', previousSelectedFileUid);
     if (!selectedFile) {
       return;
     }
 
+    setPreviousSelectedFileUid(selectedFile?.uid);
+
     const formData = new FormData();
     formData.append('file', selectedFile);
 
-    fetch('http://localhost:8081/api/v1/reports/upload', {
+    fetch(`${baseURL}/upload`, {
       method: 'POST',
       body: formData,
     })
@@ -72,29 +95,38 @@ const Processing = () => {
     if (taskId) {
       setAcceptedFile(true);
       const getInterval = setInterval(() => {
-        console.log('INT');
+        // console.log('INT');
 
-        fetch(`http://localhost:8081/api/v1/reports/cagent/status/${taskId}`)
+        fetch(`${baseURL}/cagent/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
             // PGRS = PGRS || 0;
             // PGRS += Math.random() * 10;
             // PGRS = Number(Math.min(PGRS, 100));
-            // console.log('FETCH:', res.status);
+            // allLogs.push(...res.log);
             // res = {
             //   task_id: taskId,
             //   status: PGRS < 100 ? 'processing' : 'done',
             //   progress: PGRS.toFixed(2),
-            //   log: res.log,
-            //   file_url: PGRS >= 100 ? 'http://localhost:8081/api/v1/reports/upload' : null,
+            //   log: allLogs,
+            //   file_url: PGRS >= 100 ? `${baseURL}/get-file` : null,
             // };
 
             setFileStatus(res);
 
-            if (res.status === 'done' || res.status === 'error') {
+            if (['done', 'error'].includes(res.status)) {
               //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
-              console.log('Clearing interval', res);
+              console.log('Clearing interval', selectedFile);
               clearInterval(getInterval);
+              // if (selectedFile.uid !== previousSelectedFileUid) {
+              //   setFileStatus({
+              //     file_url: null,
+              //     log: [''],
+              //     progress: '0',
+              //     status: '',
+              //     task_id: 123,
+              //   });
+              // }
             }
           })
           .catch((err) => {
@@ -104,10 +136,11 @@ const Processing = () => {
     }
   }, [taskId]);
 
-  // console.log('RENDER:', fileStatus.progress);
+  // console.log('RENDER:', fileStatus.log);
 
   return (
     <Form className={'process'} layout="vertical">
+      <h3 className="form_title">Проверка контрагентов</h3>
       <FileUpload
         inputRef={inputRef}
         changeHandler={changeHandler}
@@ -115,6 +148,7 @@ const Processing = () => {
         selectedFile={selectedFile}
         fileName={fileName}
         acceptedFile={acceptedFile}
+        fileStatus={fileStatus.status}
       />
       <FormButton
         text={'Запустить проверку'}
@@ -124,7 +158,7 @@ const Processing = () => {
       />
       <Progress percent={fileStatus ? +fileStatus?.progress : 0} />
       <LogComponent log={fileStatus.log} />
-      <Link disabled={!fileStatus.file_url} target="_blank" href={fileStatus.file_url ?? ''}>
+      <Link disabled={!(fileStatus.status === 'done')} target="_blank" href={`${baseURL}/get-file`}>
         Сохранить
       </Link>
     </Form>

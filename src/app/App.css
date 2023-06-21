@@ -1,5 +1,15 @@
+*, html, body {
+    margin: 0;
+    padding: 0;
+}
+
 .app {
     font-family: sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
+    height: 100vh;
+    background: url(../../public/assets/vector_bg2.svg) no-repeat left #000;
+    background-size: 10%;
+}
+
+button:focus-visible{
+    outline: none !important;
 }
