@@ -23,9 +23,7 @@ const Processing = () => {
     undefined,
   );
 
-  // let PGRS = localStorage.PGRS;
-  // let allLogs: string[] = [];
-  const baseURL: string = 'http://bigdata-kf.atol.ru:8081/api/v1/reports/cagent'; //'http://10.177.118.18:8081/api/v1/reports'; // 'http://localhost:8081/api/v1/reports'
+  const baseURL: string = 'http://bigdata-kf.atol.ru:8081/api/v1/reports/cagent';
 
   const changeHandler = (file: any) => {
     if (!file.name) {
@@ -46,7 +44,6 @@ const Processing = () => {
       });
     }
 
-    // if (/\.xlsx?$/.test(inputRef.current.files[0].name) === false) {
     if (/\.xlsx?$/.test(file.name) === false) {
       setSelectedFile(null);
       setIsFilePicked(false);
@@ -87,20 +84,7 @@ const Processing = () => {
         fetch(`${baseURL}/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
-            // PGRS = PGRS || 0;
-            // PGRS += Math.random() * 10;
-            // PGRS = Number(Math.min(PGRS, 100));
-            // allLogs.push(...res.log);
-            // res = {
-            //   task_id: taskId,
-            //   status: PGRS < 100 ? 'processing' : 'done',
-            //   progress: PGRS.toFixed(2),
-            //   log: allLogs,
-            //   file_url: PGRS >= 100 ? `${baseURL}/get-file` : null,
-            // };
-
             setFileStatus(res);
-
             if (['done', 'error'].includes(res.status)) {
               //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
               console.log('Clearing interval', selectedFile);
