@@ -17,7 +17,6 @@ const Processing = () => {
     log: [''],
     progress: '0',
     status: '',
-    task_id: null,
   });
   const [previousSelectedFileUid, setPreviousSelectedFileUid] = useState<string | undefined>(
     undefined,
@@ -40,7 +39,6 @@ const Processing = () => {
         log: [''],
         progress: '0',
         status: '',
-        task_id: null,
       });
     }
 
