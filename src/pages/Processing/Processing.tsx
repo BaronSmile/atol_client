@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Progress } from 'antd';
 
 import './Processing.css';
@@ -10,7 +10,6 @@ import Link from 'antd/es/typography/Link';
 const Processing = () => {
   const [selectedFile, setSelectedFile] = useState<any>();
   const [isFilePicked, setIsFilePicked] = useState(false);
-  const [fileName, setFileName] = useState('');
   const [taskId, setTaskId] = useState<undefined | number>();
   const [acceptedFile, setAcceptedFile] = useState(false);
   const [fileStatus, setFileStatus] = useState({
@@ -18,38 +17,32 @@ const Processing = () => {
     log: [''],
     progress: '0',
     status: '',
-    task_id: 123,
+    task_id: null,
   });
   const [previousSelectedFileUid, setPreviousSelectedFileUid] = useState<string | undefined>(
     undefined,
   );
 
-  const inputRef = useRef<any>();
   // let PGRS = localStorage.PGRS;
   // let allLogs: string[] = [];
-  const baseURL: string = 'http://localhost:8081/api/v1/reports'; //'http://10.177.118.18:8081/api/v1/reports'; // 'http://localhost:8081/api/v1/reports'
+  const baseURL: string = 'http://bigdata-kf.atol.ru:8081/api/v1/reports/cagent'; //'http://10.177.118.18:8081/api/v1/reports'; // 'http://localhost:8081/api/v1/reports'
 
   const changeHandler = (file: any) => {
-    // const file = inputRef.current.files[0];
-    // console.log('FILE_INFO:', file);
-    // console.log('FILE_STATUS:', fileStatus);
     if (!file.name) {
       setSelectedFile(null);
       setIsFilePicked(false);
-      setFileName('Файл не выбран');
       return;
     }
 
     if (fileStatus.status === 'done' && file.uid !== previousSelectedFileUid) {
       setAcceptedFile(false);
       setTaskId(undefined);
-      console.log('HOPE:');
       setFileStatus({
         file_url: null,
         log: [''],
         progress: '0',
         status: '',
-        task_id: 123,
+        task_id: null,
       });
     }
 
@@ -57,22 +50,18 @@ const Processing = () => {
     if (/\.xlsx?$/.test(file.name) === false) {
       setSelectedFile(null);
       setIsFilePicked(false);
-      setFileName('Поддерживается только загрузка xlsx-файлов');
       return;
     }
 
     setSelectedFile(file);
     setIsFilePicked(true);
-    setFileName(file.name);
   };
 
   const handleSubmission = () => {
-    // console.log('HANDLE:', selectedFile);
-    // console.log('HANDLE2:', previousSelectedFileUid);
     if (!selectedFile) {
       return;
     }
-
+    setIsFilePicked(false);
     setPreviousSelectedFileUid(selectedFile?.uid);
 
     const formData = new FormData();
@@ -95,9 +84,7 @@ const Processing = () => {
     if (taskId) {
       setAcceptedFile(true);
       const getInterval = setInterval(() => {
-        // console.log('INT');
-
-        fetch(`${baseURL}/cagent/status/${taskId}`)
+        fetch(`${baseURL}/status/${taskId}`)
           .then((resp) => resp.json())
           .then((res) => {
             // PGRS = PGRS || 0;
@@ -118,15 +105,6 @@ const Processing = () => {
               //if (res.status !== 'processing') { // FIXME: Uncomment after API fix
               console.log('Clearing interval', selectedFile);
               clearInterval(getInterval);
-              // if (selectedFile.uid !== previousSelectedFileUid) {
-              //   setFileStatus({
-              //     file_url: null,
-              //     log: [''],
-              //     progress: '0',
-              //     status: '',
-              //     task_id: 123,
-              //   });
-              // }
             }
           })
           .catch((err) => {
@@ -136,17 +114,11 @@ const Processing = () => {
     }
   }, [taskId]);
 
-  // console.log('RENDER:', fileStatus.log);
-
   return (
     <Form className={'process'} layout="vertical">
       <h3 className="form_title">Проверка контрагентов</h3>
       <FileUpload
-        inputRef={inputRef}
         changeHandler={changeHandler}
-        isFilePicked={isFilePicked}
-        selectedFile={selectedFile}
-        fileName={fileName}
         acceptedFile={acceptedFile}
         fileStatus={fileStatus.status}
       />
